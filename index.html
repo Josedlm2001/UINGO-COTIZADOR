@@ -757,10 +757,10 @@
     // Inicializar mapa centrado en Colima
     map = L.map('uingoMap').setView([19.2433, -103.7247], 13);
 
-    // Usar Esri World Street Map (Gratis, sin API Key y con aspecto profesional)
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom',
-        maxZoom: 19
+    // Usar la capa oficial estándar sin restricciones de API Key
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 }
 
