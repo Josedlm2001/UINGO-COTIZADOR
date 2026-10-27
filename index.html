@@ -757,11 +757,10 @@
     // Inicializar mapa centrado en Colima
     map = L.map('uingoMap').setView([19.2433, -103.7247], 13);
 
-    // Usar el servidor oficial de teselas estándar con atribución legal correcta
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        subdomains: ['a', 'b', 'c']
+    // Servidor público de Esri: 100% libre, sin bloqueos 403 y sin requerir API Key
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 18,
+        attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
     }).addTo(map);
 }
 
