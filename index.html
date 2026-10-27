@@ -18,7 +18,8 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_bigBIqjdy-EfvKtxS349yA_RcKqFrOA';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     </script>
-
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -195,52 +196,61 @@
             <!-- Columna Izquierda: Entradas & Selección de Flota (8 Col) -->
             <div class="lg:col-span-8 space-y-6">
                 
-                <!-- Paso 1: Ubicaciones y Distancia -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <span class="w-7 h-7 bg-brand-100 text-brand-600 font-bold rounded-full flex items-center justify-center text-xs">1</span>
-                        <h3 class="text-lg font-bold text-slate-900">Ubicaciones y Distancia de Ruta</h3>
-                    </div>
+               <!-- Paso 1: Ubicaciones y Distancia -->
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+    <div class="flex items-center space-x-3 mb-4">
+        <span class="w-7 h-7 bg-brand-100 text-brand-600 font-bold rounded-full flex items-center justify-center text-xs">1</span>
+        <h3 class="text-lg font-bold text-slate-900">Ubicaciones y Distancia de Ruta</h3>
+    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-                        <div>
-                            <label for="originInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Punto de Recogida (Origen)</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-emerald-500">
-                                    <i class="fa-solid fa-location-dot text-sm"></i>
-                                </span>
-                                <input type="text" id="originInput" placeholder="Ej. Av. Constitución #123, Colima" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 text-sm outline-none">
-                            </div>
-                        </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        <div>
+            <label for="originInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Punto de Recogida (Origen)</label>
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-emerald-500">
+                    <i class="fa-solid fa-location-dot text-sm"></i>
+                </span>
+                <input type="text" id="originInput" placeholder="Ej. Av. Constitución #123, Colima" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 text-sm outline-none">
+            </div>
+        </div>
 
-                        <div>
-                            <label for="destinationInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Punto de Entrega (Destino)</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-rose-500">
-                                    <i class="fa-solid fa-flag-checkered text-sm"></i>
-                                </span>
-                                <input type="text" id="destinationInput" placeholder="Ej. Centro, Villa de Álvarez" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 text-sm outline-none">
-                            </div>
-                        </div>
-                    </div>
+        <div>
+            <label for="destinationInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Punto de Entrega (Destino)</label>
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-rose-500">
+                    <i class="fa-solid fa-flag-checkered text-sm"></i>
+                </span>
+                <input type="text" id="destinationInput" placeholder="Ej. Centro, Villa de Álvarez" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 text-sm outline-none">
+            </div>
+        </div>
+    </div>
 
-                    <!-- Slider de Distancia -->
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <div class="flex justify-between items-center mb-2">
-                            <label for="distanceRange" class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-route text-brand-600"></i> Distancia Estimada
-                            </label>
-                            <span class="text-lg font-extrabold text-brand-600"><span id="distanceValue">5</span> km</span>
-                        </div>
-                        <input type="range" id="distanceRange" min="1" max="100" value="5" oninput="calculateQuote()" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-600">
-                        <div class="flex justify-between text-[11px] text-slate-400 mt-1 font-medium">
-                            <span>1 km (Local)</span>
-                            <span>7 km (Base incluida)</span>
-                            <span>50 km</span>
-                            <span>100 km</span>
-                        </div>
-                    </div>
-                </div>
+    <!-- Botón para calcular ruta automática en el mapa -->
+    <button type="button" onclick="calculateRouteFromAddresses()" class="w-full mb-4 bg-slate-800 hover:bg-slate-900 text-white font-semibold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center space-x-2 shadow-sm">
+        <i class="fa-solid fa-map-location-dot"></i>
+        <span>Calcular Ruta y Distancia en el Mapa</span>
+    </button>
+
+    <!-- Contenedor Visual del Mapa -->
+    <div id="uingoMap" class="w-full h-56 rounded-xl border border-slate-200 z-10 mb-4"></div>
+
+    <!-- Slider de Distancia -->
+    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+        <div class="flex justify-between items-center mb-2">
+            <label for="distanceRange" class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-route text-brand-600"></i> Distancia Estimada
+            </label>
+            <span class="text-lg font-extrabold text-brand-600"><span id="distanceValue">5</span> km</span>
+        </div>
+        <input type="range" id="distanceRange" min="1" max="100" value="5" oninput="calculateQuote()" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-600">
+        <div class="flex justify-between text-[11px] text-slate-400 mt-1 font-medium">
+            <span>1 km (Local)</span>
+            <span>7 km (Base incluida)</span>
+            <span>50 km</span>
+            <span>100 km</span>
+        </div>
+    </div>
+</div>
 
                 <!-- Paso 2: Selección de Vehículo -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
@@ -460,13 +470,18 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function showCalculatorView() {
-            document.getElementById('profileSection').classList.remove('active-view');
-            document.getElementById('profileSection').classList.add('hidden-view');
-            document.getElementById('calculatorSection').classList.remove('hidden-view');
-            document.getElementById('calculatorSection').classList.add('active-view');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+       function showCalculatorView() {
+    document.getElementById('profileSection').classList.remove('active-view');
+    document.getElementById('profileSection').classList.add('hidden-view');
+    document.getElementById('calculatorSection').classList.remove('hidden-view');
+    document.getElementById('calculatorSection').classList.add('active-view');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Renderizar el mapa de Leaflet automáticamente al abrir la pantalla
+    setTimeout(() => {
+        initMap();
+    }, 200);
+}
 
         function checkHomeNavigation() {
             if (currentUser) {
@@ -726,6 +741,95 @@
             setTimeout(() => {
                 modal.classList.add('hidden');
             }, 200);
+        }
+
+        // ====================================================
+        // CÓDIGO NUEVO DEL MAPA (DENTRO DEL MISMO SCRIPT)
+        // ====================================================
+        let map = null;
+        let routeLayer = null;
+
+        function initMap() {
+            if (map) {
+                map.invalidateSize();
+                return;
+            }
+            map = L.map('uingoMap').setView([19.2433, -103.7247], 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        }
+
+        async function calculateRouteFromAddresses() {
+            const originText = document.getElementById('originInput').value.trim();
+            const destText = document.getElementById('destinationInput').value.trim();
+
+            if (!originText || !destText) {
+                showMessage('Ubicaciones Requeridas', 'Por favor ingresa el origen y el destino para trazar la ruta.', 'error');
+                return;
+            }
+
+            showMessage('Calculando...', 'Buscando ruta en el mapa...', 'success');
+
+            try {
+                const originCoords = await getCoordinates(originText + ", Colima, Mexico");
+                const destCoords = await getCoordinates(destText + ", Colima, Mexico");
+
+                if (!originCoords || !destCoords) {
+                    showMessage('Error de Ubicación', 'No pudimos encontrar una o ambas direcciones. Intenta ser más específico.', 'error');
+                    return;
+                }
+
+                initMap();
+
+                const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${originCoords.lng},${originCoords.lat};${destCoords.lng},${destCoords.lat}?overview=full&geometries=geojson`;
+                
+                const response = await fetch(osrmUrl);
+                const data = await response.json();
+
+                if (data.routes && data.routes.length > 0) {
+                    const route = data.routes[0];
+                    const distanceInKm = Math.round(route.distance / 1000); 
+
+                    const distanceSlider = document.getElementById('distanceRange');
+                    distanceSlider.value = distanceInKm > 100 ? 100 : (distanceInKm < 1 ? 1 : distanceInKm);
+                    
+                    calculateQuote();
+
+                    if (routeLayer) {
+                        map.removeLayer(routeLayer);
+                    }
+
+                    routeLayer = L.geoJSON(route.geometry, {
+                        style: { color: '#0284c7', weight: 5, opacity: 0.8 }
+                    }).addTo(map);
+
+                    L.marker([originCoords.lat, originCoords.lng]).addTo(map).bindPopup('<b>Origen:</b> ' + originText);
+                    L.marker([destCoords.lat, destCoords.lng]).addTo(map).bindPopup('<b>Destino:</b> ' + destText);
+
+                    map.fitBounds(routeLayer.getBounds(), { padding: [50, 50] });
+
+                    showMessage('¡Ruta Calculada!', `Distancia estimada: ${distanceInKm} km.`, 'success');
+                } else {
+                    showMessage('Error', 'No se pudo calcular una ruta por carretera entre estos puntos.', 'error');
+                }
+
+            } catch (err) {
+                console.error('Error calculando ruta:', err);
+                showMessage('Error de Conexión', 'Ocurrió un problema al consultar el mapa.', 'error');
+            }
+        }
+
+        async function getCoordinates(address) {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
+            const res = await fetch(url, { headers: { 'User-Agent': 'UingoLogisticaApp' } });
+            const results = await res.json();
+            
+            if (results && results.length > 0) {
+                return { lat: parseFloat(results[0].lat), lng: parseFloat(results[0].lon) };
+            }
+            return null;
         }
     </script>
 </body>
