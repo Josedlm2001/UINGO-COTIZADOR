@@ -750,16 +750,20 @@
         let routeLayer = null;
 
         function initMap() {
-            if (map) {
-                map.invalidateSize();
-                return;
-            }
-            map = L.map('uingoMap').setView([19.2433, -103.7247], 13);
+    if (map) {
+        map.invalidateSize();
+        return;
+    }
+    // Inicializar mapa centrado en Colima
+    map = L.map('uingoMap').setView([19.2433, -103.7247], 13);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-        }
+    // Usar el proveedor CartoDB Voyager (Libre, rápido y sin bloqueos 403)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20
+    }).addTo(map);
+}
 
         async function calculateRouteFromAddresses() {
             const originText = document.getElementById('originInput').value.trim();
