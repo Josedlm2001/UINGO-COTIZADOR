@@ -10,18 +10,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- ---------------------------------------------------- -->
-    <!-- AQUÍ AGREGAS EL BLOQUE DE SUPABASE: -->
-    <!-- ---------------------------------------------------- -->
+    
+    <!-- Supabase JS Client & Configuración Directa -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Credenciales directas de Supabase
         const SUPABASE_URL = 'https://tlcbhbigtxhalgebrwqk.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_bigBIqjdy-EfvKtxS349yA_RcKqFrOA';
-        
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     </script>
-    <!-- ---------------------------------------------------- -->
+
     <script>
         tailwind.config = {
             theme: {
@@ -60,7 +57,6 @@
             background-color: #f0f9ff;
             box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.15), 0 4px 6px -2px rgba(2, 132, 199, 0.05);
         }
-        /* Page transitions */
         .page-view {
             transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
         }
@@ -74,7 +70,6 @@
             opacity: 1;
             transform: translateY(0);
         }
-        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -132,7 +127,7 @@
                     <i class="fa-solid fa-user-gear text-xl"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-slate-900">Configuración de Perfil</h2>
-                <p class="text-slate-500 text-sm mt-1">Ingresa tus datos de contacto para habilitar el cotizador en tiempo real y guardar tu historial.</p>
+                <p class="text-slate-500 text-sm mt-1">Ingresa tus datos de contacto para habilitar el cotizador en tiempo real y guardar tu historial en la plataforma UINGO.</p>
             </div>
 
             <form id="profileForm" onsubmit="saveProfile(event)" class="space-y-5">
@@ -150,7 +145,7 @@
                             <input type="radio" name="userType" value="Empresa" onclick="updateTypeStyle()" class="text-brand-600 focus:ring-brand-500">
                             <div>
                                 <p class="text-sm font-bold">Empresa / Negocio</p>
-                                <p class="text-[11px] text-slate-500">Facturación & Mayorreo</p>
+                                <p class="text-[11px] text-slate-500">Facturación & Mayoreo</p>
                             </div>
                         </label>
                     </div>
@@ -162,7 +157,7 @@
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                             <i class="fa-solid fa-user text-sm"></i>
                         </span>
-                        <input type="text" id="fullName" required placeholder="Ej. María González o Logística Colima S.A." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm outline-none transition">
+                        <input type="text" id="fullName" required placeholder="Ej. María González" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm outline-none transition">
                     </div>
                 </div>
 
@@ -187,7 +182,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition flex items-center justify-center space-x-2 text-sm">
+                <button type="submit" id="btnSubmitProfile" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition flex items-center justify-center space-x-2 text-sm">
                     <span>Guardar Perfil y Comenzar a Cotizar</span>
                     <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
@@ -434,74 +429,42 @@
 
     <!-- LÓGICA DE JAVASCRIPT INTEGRADA -->
     <script>
-        // Global State
         let currentUser = null;
-        let selectedVehicle = null; // 'moto', 'carro', 'camioneta', 'camion'
+        let selectedVehicle = null;
         let extraHelpers = 0;
 
-        // Reglas de precios de la flota
         const fleetRules = {
-            moto: {
-                name: 'Motocicleta',
-                basePrice: 65,
-                baseKm: 7,
-                extraKmRate: 16,
-                allowsHelpers: false
-            },
-            carro: {
-                name: 'Automóvil',
-                basePrice: 120,
-                baseKm: 7,
-                extraKmRate: 16,
-                allowsHelpers: false
-            },
-            camioneta: {
-                name: 'Camioneta (1.2 Ton)',
-                basePrice: 400,
-                baseKm: 7,
-                extraKmRate: 96,
-                allowsHelpers: true
-            },
-            camion: {
-                name: 'Camión (3 Ton)',
-                basePrice: 1300,
-                baseKm: 7,
-                extraKmRate: 196,
-                allowsHelpers: true
-            }
+            moto: { name: 'Motocicleta', basePrice: 65, baseKm: 7, extraKmRate: 16, allowsHelpers: false },
+            carro: { name: 'Automóvil', basePrice: 120, baseKm: 7, extraKmRate: 16, allowsHelpers: false },
+            camioneta: { name: 'Camioneta (1.2 Ton)', basePrice: 400, baseKm: 7, extraKmRate: 96, allowsHelpers: true },
+            camion: { name: 'Camión (3 Ton)', basePrice: 1300, baseKm: 7, extraKmRate: 196, allowsHelpers: true }
         };
 
-        // Inicializar Aplicación al cargar la página
         window.onload = function() {
             const savedProfile = localStorage.getItem('uingo_user_profile');
             if (savedProfile) {
                 currentUser = JSON.parse(savedProfile);
                 displayUserBadge();
-                showCalculatorView(); // Ir directo al cotizador si ya existe perfil
+                showCalculatorView();
             } else {
-                showProfileView(); // Mostrar pantalla de registro
+                showProfileView();
             }
-            selectVehicle('moto'); // Selección por defecto
+            selectVehicle('moto');
         };
 
-        // Navegación entre Vistas SPA
         function showProfileView() {
             document.getElementById('calculatorSection').classList.remove('active-view');
             document.getElementById('calculatorSection').classList.add('hidden-view');
-            
             document.getElementById('profileSection').classList.remove('hidden-view');
             document.getElementById('profileSection').classList.add('active-view');
-
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showCalculatorView() {
             document.getElementById('profileSection').classList.remove('active-view');
             document.getElementById('profileSection').classList.add('hidden-view');
-            
             document.getElementById('calculatorSection').classList.remove('hidden-view');
             document.getElementById('calculatorSection').classList.add('active-view');
-
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -513,7 +476,6 @@
             }
         }
 
-        // Estilos del tipo de usuario (Radio selection)
         function updateTypeStyle() {
             const isParticular = document.querySelector('input[name="userType"][value="Particular"]').checked;
             const pLabel = document.getElementById('typeParticularLabel');
@@ -528,10 +490,14 @@
             }
         }
 
-        // Guardar Perfil de Usuario
-        function saveProfile(event) {
+        // Guardar Perfil (Supabase + LocalStorage)
+        async function saveProfile(event) {
             event.preventDefault();
             
+            const btn = document.getElementById('btnSubmitProfile');
+            btn.disabled = true;
+            btn.innerHTML = '<span>Guardando en la nube...</span>';
+
             const name = document.getElementById('fullName').value.trim();
             const email = document.getElementById('userEmail').value.trim();
             const phone = document.getElementById('userPhone').value.trim();
@@ -539,18 +505,37 @@
 
             if (!name || !email || !phone) {
                 showMessage('Error', 'Por favor completa todos los campos obligatorios.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<span>Guardar Perfil y Comenzar a Cotizar</span><i class="fa-solid fa-arrow-right text-xs"></i>';
                 return;
+            }
+
+            // Inserción en Supabase Cloud
+            try {
+                const { error } = await _supabase
+                    .from('clientes')
+                    .insert([{ nombre: name, email: email, telefono: phone, tipo: userType }]);
+
+                if (error) {
+                    console.error('Error al guardar en Supabase:', error.message);
+                } else {
+                    console.log('Cliente guardado en Supabase exitosamente.');
+                }
+            } catch (err) {
+                console.error('Excepción de red:', err);
             }
 
             currentUser = { name, email, phone, userType };
             localStorage.setItem('uingo_user_profile', JSON.stringify(currentUser));
 
+            btn.disabled = false;
+            btn.innerHTML = '<span>Guardar Perfil y Comenzar a Cotizar</span><i class="fa-solid fa-arrow-right text-xs"></i>';
+
             displayUserBadge();
-            showCalculatorView(); // Transición automática al cotizador
+            showCalculatorView();
             showMessage('¡Perfil Guardado!', 'Tus datos se registraron correctamente. Ya puedes cotizar tu envío.', 'success');
         }
 
-        // Mostrar Badge del usuario en Navbar
         function displayUserBadge() {
             if (!currentUser) return;
 
@@ -564,11 +549,10 @@
             document.getElementById('userBadge').classList.remove('hidden');
             document.getElementById('userBadge').classList.add('flex');
 
-            // Rellenar campos del formulario con los datos actuales
             document.getElementById('fullName').value = currentUser.name;
             document.getElementById('userEmail').value = currentUser.email;
             document.getElementById('userPhone').value = currentUser.phone;
-            
+
             if (currentUser.userType === 'Particular') {
                 document.querySelector('input[name="userType"][value="Particular"]').checked = true;
             } else {
@@ -578,7 +562,6 @@
             calculateQuote();
         }
 
-        // Cerrar sesión o cambiar de perfil
         function logoutUser() {
             localStorage.removeItem('uingo_user_profile');
             currentUser = null;
@@ -590,10 +573,8 @@
             showMessage('Sesión Cerrada', 'Puedes registrar un nuevo perfil para continuar.', 'success');
         }
 
-        // Selección de Vehículo
         function selectVehicle(type) {
             selectedVehicle = type;
-
             document.querySelectorAll('.vehicle-card').forEach(card => card.classList.remove('selected'));
             
             const activeCard = document.getElementById(`card-${type}`);
@@ -613,7 +594,6 @@
             calculateQuote();
         }
 
-        // Cambiar cantidad de cargadores extras
         function changeHelpers(delta) {
             if (!selectedVehicle || !fleetRules[selectedVehicle].allowsHelpers) return;
 
@@ -625,7 +605,6 @@
             calculateQuote();
         }
 
-        // Cálculo de Cotización en Tiempo Real
         function calculateQuote() {
             if (!selectedVehicle) return;
 
@@ -663,7 +642,6 @@
             document.getElementById('summaryTotalPrice').innerText = `$${totalPrice.toLocaleString('es-MX')} MXN`;
         }
 
-        // Solicitar Cotización por WhatsApp
         function requestQuote() {
             if (!currentUser) {
                 showMessage('Perfil Requerido', 'Por favor completa tu registro antes de solicitar un servicio.', 'error');
@@ -699,7 +677,6 @@
             window.open(whatsappUrl, '_blank');
         }
 
-        // Reiniciar Formulario de Cotizador
         function resetCalculator() {
             document.getElementById('originInput').value = '';
             document.getElementById('destinationInput').value = '';
@@ -712,7 +689,6 @@
             showMessage('Cotizador Reiniciado', 'Los valores se han restablecido a los valores iniciales.', 'success');
         }
 
-        // Control del Modal de Notificaciones
         function showMessage(title, message, type = 'success') {
             const modal = document.getElementById('messageModal');
             const modalBox = document.getElementById('modalBox');
