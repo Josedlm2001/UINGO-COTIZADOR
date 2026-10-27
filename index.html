@@ -757,10 +757,10 @@
     // Inicializar mapa centrado en Colima
     map = L.map('uingoMap').setView([19.2433, -103.7247], 13);
 
-    // Usar la capa oficial estándar sin restricciones de API Key
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Usar Wikimedia Maps (Gratis, oficial, sin bloqueos ni API Key)
+    L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
+        attribution: '&copy; <a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia Maps</a> contributors, OpenStreetMap'
     }).addTo(map);
 }
 
