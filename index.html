@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -48,6 +48,20 @@
             background-color: #f0f9ff;
             box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.15), 0 4px 6px -2px rgba(2, 132, 199, 0.05);
         }
+        /* Page transitions */
+        .page-view {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        .page-view.hidden-view {
+            display: none !important;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .page-view.active-view {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -64,12 +78,12 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-full flex flex-col justify-between">
 
     <!-- Header / Navbar -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="checkHomeNavigation()">
                 <div class="bg-brand-600 text-white font-extrabold text-2xl px-3 py-1 rounded-lg tracking-wider shadow-sm">
                     UINGO
                 </div>
@@ -77,16 +91,21 @@
             </div>
             
             <div id="userBadge" class="hidden items-center space-x-3 bg-slate-100 py-1.5 px-3 rounded-full border border-slate-200">
-                <div class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold text-sm" id="avatarInitial">
+                <div class="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-sm" id="avatarInitial">
                     U
                 </div>
                 <div class="text-left hidden sm:block">
                     <p class="text-xs font-bold text-slate-700 leading-none" id="badgeName">Usuario</p>
                     <p class="text-[10px] text-slate-500 font-medium leading-tight" id="badgeType">Particular</p>
                 </div>
-                <button onclick="editProfile()" class="text-slate-400 hover:text-brand-600 text-xs ml-1 focus:outline-none" title="Editar Perfil">
-                    <i class="fa-solid fa-pen"></i>
-                </button>
+                <div class="flex items-center space-x-1 pl-1 border-l border-slate-200">
+                    <button onclick="showProfileView()" class="text-slate-500 hover:text-brand-600 p-1.5 rounded-lg hover:bg-white text-xs transition" title="Editar Perfil">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button onclick="logoutUser()" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-white text-xs transition" title="Cambiar de Cuenta / Salir">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -94,14 +113,14 @@
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow">
         
-        <!-- Registration & Profile View -->
-        <section id="profileSection" class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 mb-8">
+        <!-- VISTA 1: REGISTRO Y PERFIL DE USUARIO -->
+        <section id="profileSection" class="page-view active-view max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
             <div class="text-center mb-6">
                 <div class="inline-flex items-center justify-center w-12 h-12 bg-brand-100 text-brand-600 rounded-full mb-3">
                     <i class="fa-solid fa-user-gear text-xl"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-slate-900">Registro de Usuario</h2>
-                <p class="text-slate-500 text-sm mt-1">Ingresa tus datos para realizar tus cotizaciones fijas y guardar tu historial.</p>
+                <h2 class="text-2xl font-bold text-slate-900">Configuración de Perfil</h2>
+                <p class="text-slate-500 text-sm mt-1">Ingresa tus datos de contacto para habilitar el cotizador en tiempo real y guardar tu historial.</p>
             </div>
 
             <form id="profileForm" onsubmit="saveProfile(event)" class="space-y-5">
@@ -156,20 +175,20 @@
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition flex items-center justify-center space-x-2 text-sm">
-                    <span>Guardar Perfil y Continuar</span>
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition flex items-center justify-center space-x-2 text-sm">
+                    <span>Guardar Perfil y Comenzar a Cotizar</span>
                     <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
             </form>
         </section>
 
-        <!-- Calculator Section (Hidden by default until registration or activated) -->
-        <section id="calculatorSection" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- VISTA 2: COTIZADOR DE FLETES (OCULTO INICIALMENTE) -->
+        <section id="calculatorSection" class="page-view hidden-view grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <!-- Left Column: Inputs & Fleet Selection (8 Cols) -->
+            <!-- Columna Izquierda: Entradas & Selección de Flota (8 Col) -->
             <div class="lg:col-span-8 space-y-6">
                 
-                <!-- Step 1: Locations & Distance -->
+                <!-- Paso 1: Ubicaciones y Distancia -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                     <div class="flex items-center space-x-3 mb-4">
                         <span class="w-7 h-7 bg-brand-100 text-brand-600 font-bold rounded-full flex items-center justify-center text-xs">1</span>
@@ -198,25 +217,25 @@
                         </div>
                     </div>
 
-                    <!-- Distance Slider -->
+                    <!-- Slider de Distancia -->
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <div class="flex justify-between items-center mb-2">
                             <label for="distanceRange" class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-route text-brand-600"></i> Distancia de la Ruta
+                                <i class="fa-solid fa-route text-brand-600"></i> Distancia Estimada
                             </label>
                             <span class="text-lg font-extrabold text-brand-600"><span id="distanceValue">5</span> km</span>
                         </div>
-                        <input type="range" id="distanceRange" min="1" max="200" value="5" oninput="calculateQuote()" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-600">
+                        <input type="range" id="distanceRange" min="1" max="100" value="5" oninput="calculateQuote()" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-600">
                         <div class="flex justify-between text-[11px] text-slate-400 mt-1 font-medium">
                             <span>1 km (Local)</span>
                             <span>7 km (Base incluida)</span>
                             <span>50 km</span>
-                            <span>200 km</span>
+                            <span>100 km</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Step 2: Vehicle Selection -->
+                <!-- Paso 2: Selección de Vehículo -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                     <div class="flex items-center space-x-3 mb-4">
                         <span class="w-7 h-7 bg-brand-100 text-brand-600 font-bold rounded-full flex items-center justify-center text-xs">2</span>
@@ -284,13 +303,13 @@
                             </div>
                             <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-baseline">
                                 <span class="text-xs text-slate-400">Base hasta 7km</span>
-                                <span class="text-lg font-bold text-brand-600">$1,000 MXN</span>
+                                <span class="text-lg font-bold text-brand-600">$1,300 MXN</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Step 3: Extra Helpers (Loaders) -->
+                <!-- Paso 3: Cargadores Extras -->
                 <div id="helpersContainer" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 opacity-50 transition-all pointer-events-none">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
@@ -311,7 +330,7 @@
 
             </div>
 
-            <!-- Right Column: Summary Card (4 Cols) -->
+            <!-- Columna Derecha: Tarjeta de Resumen (4 Col) -->
             <div class="lg:col-span-4">
                 <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 sticky top-24">
                     <h3 class="text-lg font-bold text-slate-900 pb-3 border-b border-slate-100 flex items-center justify-between">
@@ -319,16 +338,16 @@
                         <i class="fa-solid fa-file-invoice text-brand-600"></i>
                     </h3>
 
-                    <!-- Customer Info Summary -->
+                    <!-- Información de Cliente -->
                     <div class="py-3 border-b border-slate-100 text-xs text-slate-600 space-y-1">
                         <p><strong class="text-slate-800">Cliente:</strong> <span id="summaryCustomerName">-</span></p>
                         <p><strong class="text-slate-800">Tipo:</strong> <span id="summaryCustomerType">-</span></p>
                     </div>
 
-                    <!-- Price Breakdown -->
+                    <!-- Desglose de Precios -->
                     <div class="py-4 space-y-3 text-sm">
                         <div class="flex justify-between text-slate-600">
-                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-truck text-xs text-slate-400"></i> Vehículo seleccionado:</span>
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-truck text-xs text-slate-400"></i> Vehículo:</span>
                             <span class="font-semibold text-slate-800" id="summaryVehicleName">No elegido</span>
                         </div>
 
@@ -355,7 +374,7 @@
                         </div>
                     </div>
 
-                    <!-- Terms note -->
+                    <!-- Nota legal -->
                     <div class="p-3 bg-amber-50 rounded-xl border border-amber-200/60 mb-5">
                         <p class="text-[11px] text-amber-800 leading-tight flex gap-1.5">
                             <i class="fa-solid fa-circle-info text-amber-600 mt-0.5"></i>
@@ -363,13 +382,13 @@
                         </p>
                     </div>
 
-                    <!-- Action Buttons -->
-                    <button onclick="requestQuote()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition flex items-center justify-center space-x-2 text-sm mb-3">
+                    <!-- Acciones -->
+                    <button onclick="requestQuote()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition flex items-center justify-center space-x-2 text-sm mb-3">
                         <i class="fa-brands fa-whatsapp text-lg"></i>
                         <span>Solicitar Servicio por WhatsApp</span>
                     </button>
 
-                    <button onclick="resetCalculator()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold py-2 px-4 rounded-xl transition text-xs flex items-center justify-center space-x-1">
+                    <button onclick="resetCalculator()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold py-2.5 px-4 rounded-xl transition text-xs flex items-center justify-center space-x-1">
                         <i class="fa-solid fa-rotate-left"></i>
                         <span>Reiniciar Cotizador</span>
                     </button>
@@ -380,7 +399,7 @@
 
     </main>
 
-    <!-- Modal Notification -->
+    <!-- Modal de Notificaciones -->
     <div id="messageModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 transform scale-95 transition-transform duration-200" id="modalBox">
             <div class="text-center">
@@ -401,20 +420,19 @@
         </div>
     </footer>
 
-    <!-- Application JavaScript Logic -->
+    <!-- LÓGICA DE JAVASCRIPT INTEGRADA -->
     <script>
         // Global State
         let currentUser = null;
         let selectedVehicle = null; // 'moto', 'carro', 'camioneta', 'camion'
         let extraHelpers = 0;
 
-        // Vehicle Pricing Rules Configurations
+        // Reglas de precios de la flota
         const fleetRules = {
             moto: {
                 name: 'Motocicleta',
                 basePrice: 65,
                 baseKm: 7,
-                extraKmUnit: 2,
                 extraKmRate: 16,
                 allowsHelpers: false
             },
@@ -422,7 +440,6 @@
                 name: 'Automóvil',
                 basePrice: 120,
                 baseKm: 7,
-                extraKmUnit: 2,
                 extraKmRate: 16,
                 allowsHelpers: false
             },
@@ -430,7 +447,6 @@
                 name: 'Camioneta (1.2 Ton)',
                 basePrice: 400,
                 baseKm: 7,
-                extraKmUnit: 2,
                 extraKmRate: 96,
                 allowsHelpers: true
             },
@@ -438,24 +454,54 @@
                 name: 'Camión (3 Ton)',
                 basePrice: 1300,
                 baseKm: 7,
-                extraKmUnit: 2,
                 extraKmRate: 196,
                 allowsHelpers: true
             }
         };
 
-        // Initialize App
+        // Inicializar Aplicación al cargar la página
         window.onload = function() {
-            // Check if profile exists in localStorage
             const savedProfile = localStorage.getItem('uingo_user_profile');
             if (savedProfile) {
                 currentUser = JSON.parse(savedProfile);
                 displayUserBadge();
+                showCalculatorView(); // Ir directo al cotizador si ya existe perfil
+            } else {
+                showProfileView(); // Mostrar pantalla de registro
             }
-            selectVehicle('moto'); // Default selected vehicle
+            selectVehicle('moto'); // Selección por defecto
         };
 
-        // Update CSS classes for radio choice
+        // Navegación entre Vistas SPA
+        function showProfileView() {
+            document.getElementById('calculatorSection').classList.remove('active-view');
+            document.getElementById('calculatorSection').classList.add('hidden-view');
+            
+            document.getElementById('profileSection').classList.remove('hidden-view');
+            document.getElementById('profileSection').classList.add('active-view');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showCalculatorView() {
+            document.getElementById('profileSection').classList.remove('active-view');
+            document.getElementById('profileSection').classList.add('hidden-view');
+            
+            document.getElementById('calculatorSection').classList.remove('hidden-view');
+            document.getElementById('calculatorSection').classList.add('active-view');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function checkHomeNavigation() {
+            if (currentUser) {
+                showCalculatorView();
+            } else {
+                showProfileView();
+            }
+        }
+
+        // Estilos del tipo de usuario (Radio selection)
         function updateTypeStyle() {
             const isParticular = document.querySelector('input[name="userType"][value="Particular"]').checked;
             const pLabel = document.getElementById('typeParticularLabel');
@@ -470,7 +516,7 @@
             }
         }
 
-        // Save User Profile
+        // Guardar Perfil de Usuario
         function saveProfile(event) {
             event.preventDefault();
             
@@ -480,7 +526,7 @@
             const userType = document.querySelector('input[name="userType"]:checked').value;
 
             if (!name || !email || !phone) {
-                showMessage('Error', 'Por favor completa todos los campos del perfil.', 'error');
+                showMessage('Error', 'Por favor completa todos los campos obligatorios.', 'error');
                 return;
             }
 
@@ -488,10 +534,11 @@
             localStorage.setItem('uingo_user_profile', JSON.stringify(currentUser));
 
             displayUserBadge();
-            showMessage('¡Perfil Guardado!', 'Tus datos se han registrado. Ya puedes realizar cotizaciones.', 'success');
+            showCalculatorView(); // Transición automática al cotizador
+            showMessage('¡Perfil Guardado!', 'Tus datos se registraron correctamente. Ya puedes cotizar tu envío.', 'success');
         }
 
-        // Display Active User
+        // Mostrar Badge del usuario en Navbar
         function displayUserBadge() {
             if (!currentUser) return;
 
@@ -505,7 +552,7 @@
             document.getElementById('userBadge').classList.remove('hidden');
             document.getElementById('userBadge').classList.add('flex');
 
-            // Fill form inputs
+            // Rellenar campos del formulario con los datos actuales
             document.getElementById('fullName').value = currentUser.name;
             document.getElementById('userEmail').value = currentUser.email;
             document.getElementById('userPhone').value = currentUser.phone;
@@ -516,27 +563,30 @@
                 document.querySelector('input[name="userType"][value="Empresa"]').checked = true;
             }
             updateTypeStyle();
-
             calculateQuote();
         }
 
-        function editProfile() {
-            const profileSec = document.getElementById('profileSection');
-            profileSec.scrollIntoView({ behavior: 'smooth' });
+        // Cerrar sesión o cambiar de perfil
+        function logoutUser() {
+            localStorage.removeItem('uingo_user_profile');
+            currentUser = null;
+            document.getElementById('userBadge').classList.add('hidden');
+            document.getElementById('userBadge').classList.remove('flex');
+            document.getElementById('profileForm').reset();
+            updateTypeStyle();
+            showProfileView();
+            showMessage('Sesión Cerrada', 'Puedes registrar un nuevo perfil para continuar.', 'success');
         }
 
-        // Vehicle Selection
+        // Selección de Vehículo
         function selectVehicle(type) {
             selectedVehicle = type;
 
-            // Remove selected class from all
             document.querySelectorAll('.vehicle-card').forEach(card => card.classList.remove('selected'));
             
-            // Add selected class to current
             const activeCard = document.getElementById(`card-${type}`);
             if (activeCard) activeCard.classList.add('selected');
 
-            // Handle Loader Option Availability
             const rule = fleetRules[type];
             const helpersContainer = document.getElementById('helpersContainer');
 
@@ -551,71 +601,66 @@
             calculateQuote();
         }
 
-        // Adjust Helper Count
+        // Cambiar cantidad de cargadores extras
         function changeHelpers(delta) {
             if (!selectedVehicle || !fleetRules[selectedVehicle].allowsHelpers) return;
 
             extraHelpers += delta;
             if (extraHelpers < 0) extraHelpers = 0;
-            if (extraHelpers > 6) extraHelpers = 6; // Max 6 helpers
+            if (extraHelpers > 6) extraHelpers = 6;
 
             document.getElementById('helpersCount').innerText = extraHelpers;
             calculateQuote();
         }
 
-        // Core Price Calculation Logic
+        // Cálculo de Cotización en Tiempo Real
         function calculateQuote() {
-            const distance = parseInt(document.getElementById('distanceRange').value) || 1;
-            document.getElementById('distanceValue').innerText = distance;
-
             if (!selectedVehicle) return;
 
             const rule = fleetRules[selectedVehicle];
+            const distance = parseInt(document.getElementById('distanceRange').value) || 0;
+            document.getElementById('distanceValue').innerText = distance;
 
-            // 1. Base Price
-            let basePrice = rule.basePrice;
+            document.getElementById('summaryVehicleName').innerText = rule.name;
+            document.getElementById('summaryBasePrice').innerText = `$${rule.basePrice.toLocaleString('es-MX')} MXN`;
 
-            // 2. Extra Distance Calculation
             let extraKm = 0;
-            let extraDistancePrice = 0;
+            let extraPrice = 0;
 
             if (distance > rule.baseKm) {
                 extraKm = distance - rule.baseKm;
-                // Calculate fractions of 2 km (ceil)
-                const extraBlocks = Math.ceil(extraKm / rule.extraKmUnit);
-                extraDistancePrice = extraBlocks * rule.extraKmRate;
+                extraPrice = extraKm * rule.extraKmRate;
             }
 
-            // 3. Helper Price
-            const helperPrice = extraHelpers * 300;
-
-            // 4. Total Price
-            const totalPrice = basePrice + extraDistancePrice + helperPrice;
-
-            // Update Summary UI
-            document.getElementById('summaryVehicleName').innerText = rule.name;
-            document.getElementById('summaryBasePrice').innerText = `$${basePrice.toLocaleString('es-MX')}.00 MXN`;
-            
             document.getElementById('summaryExtraKm').innerText = extraKm;
-            document.getElementById('summaryExtraPrice').innerText = `$${extraDistancePrice.toLocaleString('es-MX')}.00 MXN`;
+            document.getElementById('summaryExtraPrice').innerText = `$${extraPrice.toLocaleString('es-MX')} MXN`;
 
+            let helpersPrice = 0;
             const helpersRow = document.getElementById('summaryHelpersRow');
+
             if (rule.allowsHelpers && extraHelpers > 0) {
-                helpersRow.classList.remove('hidden');
+                helpersPrice = extraHelpers * 300;
                 document.getElementById('summaryHelpersQty').innerText = extraHelpers;
-                document.getElementById('summaryHelpersPrice').innerText = `$${helperPrice.toLocaleString('es-MX')}.00 MXN`;
+                document.getElementById('summaryHelpersPrice').innerText = `$${helpersPrice.toLocaleString('es-MX')} MXN`;
+                helpersRow.classList.remove('hidden');
             } else {
                 helpersRow.classList.add('hidden');
             }
 
-            document.getElementById('summaryTotalPrice').innerText = `$${totalPrice.toLocaleString('es-MX')}.00 MXN`;
+            const totalPrice = rule.basePrice + extraPrice + helpersPrice;
+            document.getElementById('summaryTotalPrice').innerText = `$${totalPrice.toLocaleString('es-MX')} MXN`;
         }
 
-        // Submit / Request Quote via WhatsApp
+        // Solicitar Cotización por WhatsApp
         function requestQuote() {
             if (!currentUser) {
-                showMessage('Perfil Requerido', 'Por favor guarda tus datos en el módulo de Registro antes de solicitar la cotización.', 'warning');
-                editProfile();
+                showMessage('Perfil Requerido', 'Por favor completa tu registro antes de solicitar un servicio.', 'error');
+                showProfileView();
+                return;
+            }
+
+            if (!selectedVehicle) {
+                showMessage('Vehículo Requerido', 'Por favor selecciona un tipo de vehículo.', 'error');
                 return;
             }
 
@@ -623,59 +668,55 @@
             const destination = document.getElementById('destinationInput').value.trim() || 'No especificado';
             const distance = document.getElementById('distanceRange').value;
             const rule = fleetRules[selectedVehicle];
-            const totalPrice = document.getElementById('summaryTotalPrice').innerText;
+            
+            let extraKm = distance > rule.baseKm ? distance - rule.baseKm : 0;
+            let extraPrice = extraKm * rule.extraKmRate;
+            let helpersPrice = (rule.allowsHelpers && extraHelpers > 0) ? extraHelpers * 300 : 0;
+            let totalPrice = rule.basePrice + extraPrice + helpersPrice;
 
-            let message = `*SOLICITUD DE COTIZACIÓN - UINGO*\n\n`;
-            message += `*Cliente:* ${currentUser.name} (${currentUser.userType})\n`;
-            message += `*Teléfono:* ${currentUser.phone}\n\n`;
-            message += `*DATOS DEL SERVICIO*\n`;
-            message += `• *Origen:* ${origin}\n`;
-            message += `• *Destino:* ${destination}\n`;
-            message += `• *Distancia:* ${distance} km\n`;
-            message += `• *Vehículo:* ${rule.name}\n`;
-            if (rule.allowsHelpers && extraHelpers > 0) {
-                message += `• *Cargadores extras:* ${extraHelpers}\n`;
-            }
-            message += `\n*TOTAL ESTIMADO:* ${totalPrice}\n\n`;
-            message += `¿Me pueden confirmar disponibilidad del servicio?`;
+            const message = `¡Hola! 👋 Soy *${currentUser.name}* (${currentUser.userType}). Me gustaría solicitar un servicio con *UINGO*:%0A%0A` +
+                `🚗 *Vehículo:* ${rule.name}%0A` +
+                `📍 *Origen:* ${origin}%0A` +
+                `🏁 *Destino:* ${destination}%0A` +
+                `🛣️ *Distancia:* ${distance} km%0A` +
+                (extraHelpers > 0 ? `👥 *Cargadores:* ${extraHelpers} ($${helpersPrice} MXN)%0A` : '') +
+                `💰 *Total Estimado:* $${totalPrice.toLocaleString('es-MX')} MXN%0A%0A` +
+                `📞 *Teléfono de contacto:* ${currentUser.phone}`;
 
-            const encodedMessage = encodeURIComponent(message);
-            // WhatsApp link (Using placeholding phone number for UINGO Colima)
-            const whatsappUrl = `https://wa.me/523122416157?text=${encodedMessage}`;
-
+            const whatsappUrl = `https://wa.me/523122416157?text=${message}`;
             window.open(whatsappUrl, '_blank');
         }
 
-        // Reset Calculator
+        // Reiniciar Formulario de Cotizador
         function resetCalculator() {
             document.getElementById('originInput').value = '';
             document.getElementById('destinationInput').value = '';
             document.getElementById('distanceRange').value = 5;
+            document.getElementById('distanceValue').innerText = '5';
             extraHelpers = 0;
             document.getElementById('helpersCount').innerText = '0';
             selectVehicle('moto');
+            calculateQuote();
+            showMessage('Cotizador Reiniciado', 'Los valores se han restablecido a los valores iniciales.', 'success');
         }
 
-        // Custom Modal Alert Box
-        function showMessage(title, text, type = 'info') {
+        // Control del Modal de Notificaciones
+        function showMessage(title, message, type = 'success') {
             const modal = document.getElementById('messageModal');
             const modalBox = document.getElementById('modalBox');
+            const modalIcon = document.getElementById('modalIcon');
             const modalTitle = document.getElementById('modalTitle');
             const modalMessage = document.getElementById('modalMessage');
-            const modalIcon = document.getElementById('modalIcon');
 
             modalTitle.innerText = title;
-            modalMessage.innerText = text;
+            modalMessage.innerText = message;
 
-            if (type === 'error') {
-                modalIcon.className = 'w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3 text-xl';
-                modalIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
-            } else if (type === 'warning') {
-                modalIcon.className = 'w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-3 text-xl';
-                modalIcon.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i>';
-            } else {
+            if (type === 'success') {
                 modalIcon.className = 'w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-3 text-xl';
                 modalIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+            } else {
+                modalIcon.className = 'w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3 text-xl';
+                modalIcon.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i>';
             }
 
             modal.classList.remove('hidden');
@@ -690,9 +731,9 @@
             const modal = document.getElementById('messageModal');
             const modalBox = document.getElementById('modalBox');
 
+            modal.classList.add('opacity-0');
             modalBox.classList.remove('scale-100');
             modalBox.classList.add('scale-95');
-            modal.classList.add('opacity-0');
 
             setTimeout(() => {
                 modal.classList.add('hidden');
